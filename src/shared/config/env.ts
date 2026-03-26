@@ -16,7 +16,17 @@ const envSchema = z.object({
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
 });
 
-const parsed = envSchema.safeParse(process.env);
+const rawEnv = {
+  ...process.env,
+  DATABASE_URL:
+    process.env.DATABASE_URL ??
+    process.env.POSTGRES_URL ??
+    process.env.POSTGRES_PRISMA_URL,
+  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET ?? process.env.JWT_SECRET,
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET ?? process.env.JWT_SECRET,
+};
+
+const parsed = envSchema.safeParse(rawEnv);
 
 if (!parsed.success) {
   const fieldErrors = parsed.error.flatten().fieldErrors;
@@ -25,7 +35,9 @@ if (!parsed.success) {
     .join("; ");
 
   console.error("Muhit o'zgaruvchilari tekshiruvi muvaffaqiyatsiz", fieldErrors);
-  throw new Error(`Muhit konfiguratsiyasi noto'g'ri${details ? `: ${details}` : ""}`);
+  throw new Error(
+    `Muhit konfiguratsiyasi noto'g'ri${details ? `: ${details}` : ""}. Render uchun Environment bo'limida kamida DATABASE_URL va JWT_* secretlarni sozlang.`,
+  );
 }
 
 export const env = parsed.data;
