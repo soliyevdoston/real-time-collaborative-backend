@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import { commentsService } from "../modules/comments/comments.service";
 import { PresenceStore } from "../modules/presence/presence.store";
 import { notesService } from "../modules/notes/notes.service";
-import { env } from "../shared/config/env";
+import { allowedCorsOrigins } from "../shared/config/cors";
 import { verifyAccessToken } from "../shared/utils/jwt";
 import { CollaboratorChangedEvent } from "./realtime-gateway";
 
@@ -24,7 +24,7 @@ const parseToken = (raw?: string): string | null => {
 export const createRealtimeSocketServer = (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: env.FRONTEND_URL,
+      origin: allowedCorsOrigins,
       credentials: true,
     },
   });

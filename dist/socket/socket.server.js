@@ -6,7 +6,7 @@ const socket_io_1 = require("socket.io");
 const comments_service_1 = require("../modules/comments/comments.service");
 const presence_store_1 = require("../modules/presence/presence.store");
 const notes_service_1 = require("../modules/notes/notes.service");
-const env_1 = require("../shared/config/env");
+const cors_1 = require("../shared/config/cors");
 const jwt_1 = require("../shared/utils/jwt");
 const noteRoom = (noteId) => `note:${noteId}`;
 const parseToken = (raw) => {
@@ -19,7 +19,7 @@ const parseToken = (raw) => {
 const createRealtimeSocketServer = (httpServer) => {
     const io = new socket_io_1.Server(httpServer, {
         cors: {
-            origin: env_1.env.FRONTEND_URL,
+            origin: cors_1.allowedCorsOrigins,
             credentials: true,
         },
     });

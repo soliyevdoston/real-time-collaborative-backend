@@ -4,20 +4,25 @@ import { HttpError } from "../../shared/errors/http-error";
 import { authService } from "./auth.service";
 
 const REFRESH_COOKIE = "refreshToken";
+const isProduction = env.NODE_ENV === "production";
+
+const refreshCookieBaseOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? ("none" as const) : ("lax" as const),
+  path: "/api/auth",
+};
 
 const setRefreshCookie = (res: Response, refreshToken: string): void => {
   res.cookie(REFRESH_COOKIE, refreshToken, {
-    httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/api/auth",
+    ...refreshCookieBaseOptions,
     maxAge: env.REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000,
   });
 };
 
 const clearRefreshCookie = (res: Response): void => {
   res.clearCookie(REFRESH_COOKIE, {
-    path: "/api/auth",
+    ...refreshCookieBaseOptions,
   });
 };
 

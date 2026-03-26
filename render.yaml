@@ -8,6 +8,12 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: FRONTEND_URL
+        value: https://google-docs-example.vercel.app
+      - key: FRONTEND_URLS
+        value: http://localhost:3000,https://google-docs-example.vercel.app
+      - key: BACKEND_PUBLIC_URL
+        value: https://real-time-collaborative-notes-app-rxhf.onrender.com
       - key: DATABASE_URL
         fromDatabase:
           name: realtime-notes-db

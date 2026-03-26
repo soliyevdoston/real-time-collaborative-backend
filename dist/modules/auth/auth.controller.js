@@ -5,18 +5,22 @@ const env_1 = require("../../shared/config/env");
 const http_error_1 = require("../../shared/errors/http-error");
 const auth_service_1 = require("./auth.service");
 const REFRESH_COOKIE = "refreshToken";
+const isProduction = env_1.env.NODE_ENV === "production";
+const refreshCookieBaseOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/api/auth",
+};
 const setRefreshCookie = (res, refreshToken) => {
     res.cookie(REFRESH_COOKIE, refreshToken, {
-        httpOnly: true,
-        secure: env_1.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/api/auth",
+        ...refreshCookieBaseOptions,
         maxAge: env_1.env.REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000,
     });
 };
 const clearRefreshCookie = (res) => {
     res.clearCookie(REFRESH_COOKIE, {
-        path: "/api/auth",
+        ...refreshCookieBaseOptions,
     });
 };
 exports.authController = {

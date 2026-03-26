@@ -8,6 +8,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   HOCUSPOCUS_PORT: z.coerce.number().default(1234),
   FRONTEND_URL: z.string().url().default("http://localhost:3000"),
+  FRONTEND_URLS: z.string().optional(),
   BACKEND_PUBLIC_URL: z.string().url().default("http://localhost:4000"),
   DATABASE_URL: z.string().min(1),
   JWT_ACCESS_SECRET: z.string().min(16),
