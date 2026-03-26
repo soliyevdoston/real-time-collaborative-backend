@@ -3,6 +3,19 @@ import { z } from "zod";
 
 config();
 
+const normalizeEnvValue = (value: string | undefined): string | undefined => {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  return trimmed.replace(/^['"]|['"]$/g, "");
+};
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().default(4000),
@@ -19,12 +32,17 @@ const envSchema = z.object({
 
 const rawEnv = {
   ...process.env,
+  NODE_ENV: normalizeEnvValue(process.env.NODE_ENV)?.toLowerCase(),
+  FRONTEND_URL: normalizeEnvValue(process.env.FRONTEND_URL),
+  FRONTEND_URLS: normalizeEnvValue(process.env.FRONTEND_URLS),
+  BACKEND_PUBLIC_URL: normalizeEnvValue(process.env.BACKEND_PUBLIC_URL),
   DATABASE_URL:
-    process.env.DATABASE_URL ??
-    process.env.POSTGRES_URL ??
-    process.env.POSTGRES_PRISMA_URL,
-  JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET ?? process.env.JWT_SECRET,
-  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET ?? process.env.JWT_SECRET,
+    normalizeEnvValue(process.env.DATABASE_URL) ??
+    normalizeEnvValue(process.env.POSTGRES_URL) ??
+    normalizeEnvValue(process.env.POSTGRES_PRISMA_URL),
+  JWT_ACCESS_SECRET: normalizeEnvValue(process.env.JWT_ACCESS_SECRET) ?? normalizeEnvValue(process.env.JWT_SECRET),
+  JWT_REFRESH_SECRET:
+    normalizeEnvValue(process.env.JWT_REFRESH_SECRET) ?? normalizeEnvValue(process.env.JWT_SECRET),
 };
 
 const parsed = envSchema.safeParse(rawEnv);

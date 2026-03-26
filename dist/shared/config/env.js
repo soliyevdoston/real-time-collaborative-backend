@@ -4,6 +4,16 @@ exports.env = void 0;
 const dotenv_1 = require("dotenv");
 const zod_1 = require("zod");
 (0, dotenv_1.config)();
+const normalizeEnvValue = (value) => {
+    if (typeof value !== "string") {
+        return value;
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return undefined;
+    }
+    return trimmed.replace(/^['"]|['"]$/g, "");
+};
 const envSchema = zod_1.z.object({
     NODE_ENV: zod_1.z.enum(["development", "test", "production"]).default("development"),
     PORT: zod_1.z.coerce.number().default(4000),
@@ -19,11 +29,15 @@ const envSchema = zod_1.z.object({
 });
 const rawEnv = {
     ...process.env,
-    DATABASE_URL: process.env.DATABASE_URL ??
-        process.env.POSTGRES_URL ??
-        process.env.POSTGRES_PRISMA_URL,
-    JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET ?? process.env.JWT_SECRET,
-    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET ?? process.env.JWT_SECRET,
+    NODE_ENV: normalizeEnvValue(process.env.NODE_ENV)?.toLowerCase(),
+    FRONTEND_URL: normalizeEnvValue(process.env.FRONTEND_URL),
+    FRONTEND_URLS: normalizeEnvValue(process.env.FRONTEND_URLS),
+    BACKEND_PUBLIC_URL: normalizeEnvValue(process.env.BACKEND_PUBLIC_URL),
+    DATABASE_URL: normalizeEnvValue(process.env.DATABASE_URL) ??
+        normalizeEnvValue(process.env.POSTGRES_URL) ??
+        normalizeEnvValue(process.env.POSTGRES_PRISMA_URL),
+    JWT_ACCESS_SECRET: normalizeEnvValue(process.env.JWT_ACCESS_SECRET) ?? normalizeEnvValue(process.env.JWT_SECRET),
+    JWT_REFRESH_SECRET: normalizeEnvValue(process.env.JWT_REFRESH_SECRET) ?? normalizeEnvValue(process.env.JWT_SECRET),
 };
 const parsed = envSchema.safeParse(rawEnv);
 if (!parsed.success) {
